@@ -2,14 +2,10 @@ mod commands;
 
 use anyhow::anyhow;
 use serenity::model::application::interaction::Interaction;
-// use serenity::model::prelude::Member;
-// use serenity::model::guild::Member;
-use serenity::model::prelude::command::CommandOptionType;
-use serenity::model::prelude::interaction::InteractionResponseType;
-use serenity::{async_trait, model::prelude::GuildId};
-// use serenity::model::channel::Message;
 use serenity::model::gateway::Ready;
+use serenity::model::prelude::interaction::InteractionResponseType;
 use serenity::prelude::*;
+use serenity::{async_trait, model::prelude::GuildId};
 use shuttle_secrets::SecretStore;
 use tracing::info;
 
@@ -17,40 +13,25 @@ struct Bot;
 
 #[async_trait]
 impl EventHandler for Bot {
-
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
-            // println!("Received command: {:#?}", command);
+            println!("Received command: {:#?}", command);
 
-            let response_content = match command.data.name.as_str() {
+            let content = match command.data.name.as_str() {
                 "hello" => "hello".to_owned(),
-                "welcome" => {
-                    let result =
-                    info!("{:?}", result);
-
-                    match result {
-                        Ok(message) => {
-                            message.content
-                        }
-                        Err(err) => {
-                            format!("Err: {}", err)
-                        }
-                    }
-                    // let user = &command.user.name;
-                    // format!("Welcome to the server, {}", user)
-                },
+                "welcome" => commands::welcome::run(&command.data.options),
                 command => unreachable!("Unknown command: {}", command),
             };
 
-            let create_interaction_response =
-                command.create_interaction_response(&ctx.http, |response| {
+            if let Err(why) = command
+                .create_interaction_response(&ctx.http, |response| {
                     response
                         .kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(|message| message.content(response_content))
-                });
-
-            if let Err(why) = create_interaction_response.await {
-                eprintln!("Cannot respond to slash command: {}", why);
+                        .interaction_response_data(|message| message.content(content))
+                })
+                .await
+            {
+                println!("Cant respond to this slash command: {}", why);
             }
         }
     }
@@ -60,30 +41,9 @@ impl EventHandler for Bot {
         let guild_id = GuildId(628079435832098827);
 
         let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
-            commands.create_application_command(|command| {
-                command.name("hello").description("Say hello")
-            });
-            commands.create_application_command(|command| {
-                command
-                    .name("welcome")
-                    .description("Welcome a user by name")
-                    .create_option(|option| {
-                        option
-                            .name("user")
-                            .description("The user to welcome")
-                            .kind(CommandOptionType::User)
-                            .required(true)
-                    })
-                    .create_option(|option| {
-                        option
-                            .name("message")
-                            .description("What to say to the user")
-                            .kind(CommandOptionType::String)
-                            .required(true)
-                            .add_string_choice("Welcome to the server, ", "welcome")
-                            .add_string_choice("Get the hell out of here, ", "bye")
-                    })
-            })
+            commands
+                .create_application_command(|command| command.name("hello"))
+                .create_application_command(|command| commands::welcome::register(command))
         })
         .await
         .unwrap();
@@ -102,7 +62,6 @@ async fn serenity(
     } else {
         return Err(anyhow!("'DISCORD_TOKEN' was not found").into());
     };
-
 
     // Set gateway intents, which decides what events the bot will be notified about
     let intents = GatewayIntents::GUILD_MESSAGES
