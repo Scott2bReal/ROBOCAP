@@ -1,5 +1,8 @@
+mod caps;
 use anyhow::anyhow;
 use serenity::model::application::interaction::Interaction;
+use serenity::model::guild::Member;
+use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::InteractionResponseType;
 use serenity::{async_trait, model::prelude::GuildId};
 // use serenity::model::channel::Message;
@@ -25,6 +28,18 @@ impl EventHandler for Bot {
                 command
                     .name("bottlecap")
                     .description("User gets a bottlecap!")
+                    .create_option(|option| {
+                        option
+                            .name("User")
+                            .description("Who gets the cap?")
+                            .kind(CommandOptionType::String)
+                            .required(true)
+                            .add_string_choice("Scott", "Scott")
+                            .add_string_choice("Nikko", "Nikko")
+                            .add_string_choice("EJ", "EJ")
+                            .add_string_choice("Joon", "Joon")
+                            .add_string_choice("Joe", "Joe")
+                    })
             })
         })
         .await
@@ -67,7 +82,9 @@ async fn serenity(
     };
 
     // Set gateway intents, which decides what events the bot will be notified about
-    let intents = GatewayIntents::GUILD_MESSAGES | GatewayIntents::MESSAGE_CONTENT;
+    let intents = GatewayIntents::GUILD_MESSAGES
+        | GatewayIntents::MESSAGE_CONTENT
+        | GatewayIntents::GUILD_MESSAGE_REACTIONS;
 
     let client = Client::builder(&token, intents)
         .event_handler(Bot)
