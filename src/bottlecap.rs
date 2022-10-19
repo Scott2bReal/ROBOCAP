@@ -2,7 +2,7 @@ use serenity::{
     builder::CreateApplicationCommand,
     model::prelude::{
         command::CommandOptionType,
-        interaction::application_command::{CommandDataOption, CommandDataOptionValue},
+        interaction::application_command::{CommandDataOption, CommandDataOptionValue}, Mention,
     },
 };
 
@@ -24,7 +24,8 @@ pub fn run(options: &[CommandDataOption]) -> String {
     if let CommandDataOptionValue::User(user, _member) = user_option {
         if let CommandDataOptionValue::String(reason) = reason_option {
             // TODO Award the cap here
-            format!("{} was awarded a bottlecap for {}", user.tag(), reason)
+            let mention = Mention::User(user.id);
+            format!("{} was awarded a bottlecap for {}", mention, reason)
         } else {
             return "Please provide a reason for the cap".to_string();
         }
