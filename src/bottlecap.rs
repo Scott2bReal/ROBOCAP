@@ -2,7 +2,8 @@ use serenity::{
     builder::CreateApplicationCommand,
     model::prelude::{
         command::CommandOptionType,
-        interaction::application_command::{CommandDataOption, CommandDataOptionValue}, Mention,
+        interaction::application_command::{CommandDataOption, CommandDataOptionValue},
+        Mention,
     },
 };
 
