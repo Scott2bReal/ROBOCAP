@@ -1,20 +1,35 @@
 use serenity::{
     builder::CreateApplicationCommand,
-    model::prelude::{interaction::application_command::{CommandDataOption, CommandDataOptionValue}, command::CommandOptionType},
+    model::prelude::{
+        command::CommandOptionType,
+        interaction::application_command::{CommandDataOption, CommandDataOptionValue},
+    },
 };
 
 pub fn run(options: &[CommandDataOption]) -> String {
-    let option = options
+    let user_option = options
         .get(0)
+        .expect("Expected user option")
+        .resolved
+        .as_ref()
+        .expect("Expected user object");
+
+    let reason_option = options
+        .get(1)
         .expect("Expected string option")
         .resolved
         .as_ref()
-        .expect("Expected string");
+        .expect("Expected a string");
 
-    if let CommandDataOptionValue::String(string) = option {
-        format!("{}", string)
+    if let CommandDataOptionValue::User(user, _member) = user_option {
+        if let CommandDataOptionValue::String(reason) = reason_option {
+            // TODO Award the cap here
+            format!("{} was awarded a bottlecap for {}", user.tag(), reason)
+        } else {
+            return "Please provide a reason for the cap".to_string();
+        }
     } else {
-        format!("I couldn't understand this option: {:#?}", option)
+        return "Please provide a valid user".to_string();
     }
 }
 
@@ -31,7 +46,7 @@ pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicatio
         })
         .create_option(|option| {
             option
-                .name("message")
+                .name("reason")
                 .description("The reason for the cap")
                 .kind(CommandOptionType::String)
                 .required(true)
