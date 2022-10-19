@@ -19,7 +19,7 @@ impl EventHandler for Bot {
 
             let content = match command.data.name.as_str() {
                 "hello" => "hello".to_owned(),
-                "welcome" => commands::welcome::run(&command.data.options),
+                "bottlecap" => commands::bottlecap::run(&command.data.options),
                 command => unreachable!("Unknown command: {}", command),
             };
 
@@ -43,10 +43,9 @@ impl EventHandler for Bot {
         let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
             commands
                 .create_application_command(|command| command.name("hello"))
-                .create_application_command(|command| commands::welcome::register(command))
+                .create_application_command(|command| commands::bottlecap::register(command))
         })
-        .await
-        .unwrap();
+        .await;
 
         info!("{:?}", commands);
     }
