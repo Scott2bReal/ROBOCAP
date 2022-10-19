@@ -1,7 +1,9 @@
-mod caps;
+mod commands;
+
 use anyhow::anyhow;
 use serenity::model::application::interaction::Interaction;
-use serenity::model::guild::Member;
+// use serenity::model::prelude::Member;
+// use serenity::model::guild::Member;
 use serenity::model::prelude::command::CommandOptionType;
 use serenity::model::prelude::interaction::InteractionResponseType;
 use serenity::{async_trait, model::prelude::GuildId};
@@ -15,44 +17,28 @@ struct Bot;
 
 #[async_trait]
 impl EventHandler for Bot {
-    async fn ready(&self, ctx: Context, ready: Ready) {
-        info!("{} is connected!", ready.user.name);
-
-        let guild_id = GuildId(628079435832098827);
-
-        let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
-            commands.create_application_command(|command| {
-                command.name("hello").description("Say hello")
-            });
-            commands.create_application_command(|command| {
-                command
-                    .name("bottlecap")
-                    .description("User gets a bottlecap!")
-                    .create_option(|option| {
-                        option
-                            .name("User")
-                            .description("Who gets the cap?")
-                            .kind(CommandOptionType::String)
-                            .required(true)
-                            .add_string_choice("Scott", "Scott")
-                            .add_string_choice("Nikko", "Nikko")
-                            .add_string_choice("EJ", "EJ")
-                            .add_string_choice("Joon", "Joon")
-                            .add_string_choice("Joe", "Joe")
-                    })
-            })
-        })
-        .await
-        .unwrap();
-
-        info!("{:?}", commands);
-    }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
+            // println!("Received command: {:#?}", command);
+
             let response_content = match command.data.name.as_str() {
                 "hello" => "hello".to_owned(),
-                "bottlecap" => "You get a bottlecap!".to_owned(),
+                "welcome" => {
+                    let result =
+                    info!("{:?}", result);
+
+                    match result {
+                        Ok(message) => {
+                            message.content
+                        }
+                        Err(err) => {
+                            format!("Err: {}", err)
+                        }
+                    }
+                    // let user = &command.user.name;
+                    // format!("Welcome to the server, {}", user)
+                },
                 command => unreachable!("Unknown command: {}", command),
             };
 
@@ -68,6 +54,42 @@ impl EventHandler for Bot {
             }
         }
     }
+    async fn ready(&self, ctx: Context, ready: Ready) {
+        info!("{} is connected!", ready.user.name);
+
+        let guild_id = GuildId(628079435832098827);
+
+        let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
+            commands.create_application_command(|command| {
+                command.name("hello").description("Say hello")
+            });
+            commands.create_application_command(|command| {
+                command
+                    .name("welcome")
+                    .description("Welcome a user by name")
+                    .create_option(|option| {
+                        option
+                            .name("user")
+                            .description("The user to welcome")
+                            .kind(CommandOptionType::User)
+                            .required(true)
+                    })
+                    .create_option(|option| {
+                        option
+                            .name("message")
+                            .description("What to say to the user")
+                            .kind(CommandOptionType::String)
+                            .required(true)
+                            .add_string_choice("Welcome to the server, ", "welcome")
+                            .add_string_choice("Get the hell out of here, ", "bye")
+                    })
+            })
+        })
+        .await
+        .unwrap();
+
+        info!("{:?}", commands);
+    }
 }
 
 #[shuttle_service::main]
@@ -80,6 +102,7 @@ async fn serenity(
     } else {
         return Err(anyhow!("'DISCORD_TOKEN' was not found").into());
     };
+
 
     // Set gateway intents, which decides what events the bot will be notified about
     let intents = GatewayIntents::GUILD_MESSAGES
