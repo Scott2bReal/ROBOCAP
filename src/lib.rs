@@ -5,6 +5,7 @@ mod list_caps;
 use anyhow::{anyhow, Context as _};
 use serenity::model::application::interaction::Interaction;
 use serenity::model::gateway::Ready;
+use serenity::model::prelude::command::CommandPermission;
 use serenity::model::prelude::interaction::InteractionResponseType;
 use serenity::prelude::*;
 use serenity::{async_trait, model::prelude::GuildId};
@@ -19,7 +20,7 @@ struct Bot {
 
 #[async_trait]
 impl EventHandler for Bot {
-    async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
+    async fn interaction_create(&self, ctx: Context, interaction: Interaction, permissions: CommandPermission) {
         if let Interaction::ApplicationCommand(command) = interaction {
             let content = match command.data.name.as_str() {
                 "bottlecap" => bottlecap::run(&self.database, &command.data.options).await,
