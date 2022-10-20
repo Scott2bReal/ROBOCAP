@@ -21,7 +21,7 @@ impl EventHandler for Bot {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
             let content = match command.data.name.as_str() {
-                "bottlecap" => bottlecap::run(&command.data.options),
+                "bottlecap" => bottlecap::run(&self.database, &command.data.options),
                 command => unreachable!("Unknown command: {}", command),
             };
 
