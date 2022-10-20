@@ -1,6 +1,6 @@
 mod bottlecap;
 mod db;
-mod list;
+mod list_caps;
 
 use anyhow::{anyhow, Context as _};
 use serenity::model::application::interaction::Interaction;
@@ -22,8 +22,8 @@ impl EventHandler for Bot {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
             let content = match command.data.name.as_str() {
-                "bottlecap" =>{bottlecap::run(&self.database, &command.data.options).await}
-                "list" => {list::run(&self.database).await},
+                "bottlecap" => bottlecap::run(&self.database, &command.data.options).await,
+                "list" => list_caps::run(&self.database).await,
                 command => unreachable!("Unknown command: {}", command),
             };
 
@@ -46,7 +46,7 @@ impl EventHandler for Bot {
         let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
             commands
                 .create_application_command(|command| bottlecap::register(command))
-                .create_application_command(|command| list::register(command))
+                .create_application_command(|command| list_caps::register(command))
         })
         .await;
 
