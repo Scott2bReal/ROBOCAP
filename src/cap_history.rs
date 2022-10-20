@@ -9,5 +9,5 @@ pub async fn run(db: &PgPool, user: &User) -> String {
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
-    command.name("cap_history").description("List all your caps")
+    command.name("history").description("List all your caps")
 }
