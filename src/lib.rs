@@ -1,16 +1,20 @@
 mod bottlecap;
-mod utils;
+mod db;
 
-use anyhow::anyhow;
+use anyhow::{anyhow, Context as _};
 use serenity::model::application::interaction::Interaction;
 use serenity::model::gateway::Ready;
 use serenity::model::prelude::interaction::InteractionResponseType;
 use serenity::prelude::*;
 use serenity::{async_trait, model::prelude::GuildId};
 use shuttle_secrets::SecretStore;
+use sqlx::{Executor, PgPool};
 use tracing::info;
 
-struct Bot;
+struct Bot {
+    database: PgPool,
+    guild_id: String,
+}
 
 #[async_trait]
 impl EventHandler for Bot {
@@ -35,12 +39,10 @@ impl EventHandler for Bot {
     }
     async fn ready(&self, ctx: Context, ready: Ready) {
         info!("{} is connected!", ready.user.name);
-
-        let guild_id = GuildId(628079435832098827);
+        let guild_id = GuildId(self.guild_id.parse().unwrap());
 
         let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
-            commands
-                .create_application_command(|command| bottlecap::register(command))
+            commands.create_application_command(|command| bottlecap::register(command))
         })
         .await;
 
@@ -51,6 +53,7 @@ impl EventHandler for Bot {
 #[shuttle_service::main]
 async fn serenity(
     #[shuttle_secrets::Secrets] secret_store: SecretStore,
+    #[shuttle_shared_db::Postgres] pool: PgPool,
 ) -> shuttle_service::ShuttleSerenity {
     // Get the discord token set in `Secrets.toml`
     let token = if let Some(token) = secret_store.get("DISCORD_TOKEN") {
@@ -59,13 +62,27 @@ async fn serenity(
         return Err(anyhow!("'DISCORD_TOKEN' was not found").into());
     };
 
+    let guild_id = secret_store
+        .get("GUILD_ID")
+        .context("'GUILD_ID' was not found")?;
+
+    // Run the schema migration
+    pool.execute(include_str!("./schema.sql"))
+        .await
+        .context("failed to run migration")?;
+
+    let bot = Bot {
+        database: pool,
+        guild_id,
+    };
+
     // Set gateway intents, which decides what events the bot will be notified about
     let intents = GatewayIntents::GUILD_MESSAGES
         | GatewayIntents::MESSAGE_CONTENT
         | GatewayIntents::GUILD_MESSAGE_REACTIONS;
 
     let client = Client::builder(&token, intents)
-        .event_handler(Bot)
+        .event_handler(bot)
         .await
         .expect("Err creating client");
 

@@ -1,3 +1,5 @@
+use crate::db;
+
 use serenity::{
     builder::CreateApplicationCommand,
     model::prelude::{
@@ -6,6 +8,7 @@ use serenity::{
         Mention,
     },
 };
+use sqlx::PgPool;
 
 pub fn run(options: &[CommandDataOption]) -> String {
     let user_option = options
@@ -22,9 +25,11 @@ pub fn run(options: &[CommandDataOption]) -> String {
         .as_ref()
         .expect("Expected a string");
 
+
     if let CommandDataOptionValue::User(user, _member) = user_option {
         if let CommandDataOptionValue::String(reason) = reason_option {
             // TODO Award the cap here
+            crate::db::give_bottlecap(&crate::PgPool, user_id, reason);
             let mention = Mention::User(user.id);
             format!("{} was awarded a bottlecap for {}", mention, reason)
         } else {

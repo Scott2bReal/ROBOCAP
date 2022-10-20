@@ -3,12 +3,12 @@ CREATE TABLE IF NOT EXISTS users (
   name text NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS bottlecaps (
+CREATE TABLE IF NOT EXISTS bottlcaps (
   id int PRIMARY KEY,
   user_id int REFERENCES users (id)
     NOT NULL
     ON DELETE CASCADE,
   reason text NOT NULL,
-  available boolean DEFAULT true
+  available boolean DEFAULT true,
   awarded timestamp DEFAULT now()
 );
