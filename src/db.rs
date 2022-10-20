@@ -1,14 +1,14 @@
 use serenity::model::prelude::UserId;
-use sqlx::{FromRow, PgPool};
+use sqlx::{PgPool};
 
-#[derive(FromRow)]
-struct Bottlecap {
-    pub id: i32,
-    pub user_id: UserId,
-    pub reason: String,
-    pub available: bool,
-    pub awarded: String,
-}
+// #[derive(FromRow)]
+// struct Bottlecap {
+//     pub id: i32,
+//     pub user_id: UserId,
+//     pub reason: String,
+//     pub available: bool,
+//     pub awarded: String,
+// }
 
 pub(crate) async fn give_bottlecap(pool: &PgPool, user_id: &UserId, reason: &String) -> Result<String, sqlx::Error> {
     // give a bottlecap!

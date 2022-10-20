@@ -29,7 +29,7 @@ impl EventHandler for Bot {
                 .create_interaction_response(&ctx.http, |response| {
                     response
                         .kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(|message| message.content(content.await))
+                        .interaction_response_data(|message| message.content(content))
                 })
                 .await
             {
