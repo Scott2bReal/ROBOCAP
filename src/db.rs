@@ -25,3 +25,13 @@ pub(crate) async fn give_bottlecap(
         .await?;
     Ok(format!("Have a bottlecap!"))
 }
+
+pub(crate) async fn list_caps(
+    pool: &PgPool,
+) -> Result<String, sqlx::Error> {
+    info!("Checking for your caps!");
+    sqlx::query("SELECT * FROM bottlecaps")
+    .execute(pool)
+        .await?;
+    Ok(format!("Here's the caps!"))
+}

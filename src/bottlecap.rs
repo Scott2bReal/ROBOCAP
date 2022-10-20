@@ -2,11 +2,12 @@ use crate::db;
 
 use serenity::{
     builder::CreateApplicationCommand,
+    futures::executor::block_on,
     model::prelude::{
         command::CommandOptionType,
         interaction::application_command::{CommandDataOption, CommandDataOptionValue},
         Mention,
-    }, futures::executor
+    },
 };
 use sqlx::PgPool;
 
@@ -29,8 +30,13 @@ pub fn run(db: &PgPool, options: &[CommandDataOption]) -> String {
         if let CommandDataOptionValue::String(reason) = reason_option {
             // TODO Award the cap here
             let mention = Mention::User(user.id);
-            let result = executor::block_on(self::db::give_bottlecap(db, &user.id, reason));
-            format!("{} was awarded a bottlecap for {}. {}!", mention, reason, result.unwrap())
+            let result = block_on(self::db::give_bottlecap(db, &user.id, reason));
+            format!(
+                "{} was awarded a bottlecap for {}. {}!",
+                mention,
+                reason,
+                result.unwrap()
+            )
         } else {
             return "Please provide a reason for the cap".to_string();
         }
