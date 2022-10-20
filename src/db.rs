@@ -1,37 +1,54 @@
-use serenity::model::prelude::UserId;
-use sqlx::PgPool;
+use serenity::model::{user::User, Timestamp};
+use sqlx::{FromRow, PgPool};
+use std::fmt::Write;
 use tracing::info;
 
-// #[derive(FromRow)]
-// struct Bottlecap {
-//     pub id: i32,
-//     pub user_id: UserId,
-//     pub reason: String,
-//     pub available: bool,
-//     pub awarded: String,
-// }
+#[derive(FromRow)]
+struct Bottlecap {
+    // pub id: i32,
+    // pub user_id: String,
+    pub reason: String,
+    // #[sqlx(default)]
+    // pub available: bool,
+    pub awarded: String,
+}
 
 pub(crate) async fn give_bottlecap(
     pool: &PgPool,
-    user_id: &UserId,
+    user: &User,
     reason: &String,
 ) -> Result<String, sqlx::Error> {
     // give a bottlecap!
     info!("Attempting to add bottlecap!");
-    sqlx::query("INSERT INTO bottlecaps (user_id, reason) VALUES ($1, $2)")
-        .bind(user_id.to_string())
+    let now: String = Timestamp::now().to_string().split('T').collect::<Vec<&str>>()[0].to_string();
+    info!("Today's date is {}", &now);
+    sqlx::query("INSERT INTO bottlecaps (user_id, reason, awarded) VALUES ($1, $2, $3)")
+        .bind(user.id.to_string())
         .bind(reason)
+        .bind(now)
         .execute(pool)
         .await?;
     Ok(format!("Have a bottlecap!"))
 }
 
-pub(crate) async fn list_caps(
-    pool: &PgPool,
-) -> Result<String, sqlx::Error> {
-    info!("Checking for your caps!");
-    sqlx::query("SELECT * FROM bottlecaps")
-    .execute(pool)
-        .await?;
-    Ok(format!("Here's the caps!"))
+pub(crate) async fn list_caps(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
+    info!("Checking caps for {}!", user.name);
+    let bottlecaps: Vec<Bottlecap> =
+        sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1 AND available = true")
+            .bind(user.id.to_string())
+            .fetch_all(pool)
+            .await?;
+    let mut response = format!("You have {} bottlecaps:\n", bottlecaps.len());
+    for (i, cap) in bottlecaps.iter().enumerate() {
+        writeln!(
+            &mut response,
+            "{}: Awarded on {} for {}",
+            i + 1,
+            cap.awarded,
+            cap.reason
+        )
+        .unwrap();
+    }
+
+    Ok(response)
 }

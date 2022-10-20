@@ -1,2 +1,4 @@
-* [ ] Plot out basic actions 
-* [ ] Figure out how to interact w/ psql via rust
+* [ ] User can use a bottlecap 
+* [ ] View history
+* [ ] Only caleb can give a bottlecap
+
