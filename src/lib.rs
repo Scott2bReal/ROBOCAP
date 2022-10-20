@@ -1,11 +1,11 @@
-mod bottlecap;
+mod give_bottlecap;
 mod db;
-mod list_caps;
+mod list_available_caps;
+mod use_cap;
 
 use anyhow::{anyhow, Context as _};
 use serenity::model::application::interaction::Interaction;
 use serenity::model::gateway::Ready;
-use serenity::model::prelude::command::CommandPermission;
 use serenity::model::prelude::interaction::InteractionResponseType;
 use serenity::prelude::*;
 use serenity::{async_trait, model::prelude::GuildId};
@@ -20,11 +20,12 @@ struct Bot {
 
 #[async_trait]
 impl EventHandler for Bot {
-    async fn interaction_create(&self, ctx: Context, interaction: Interaction, permissions: CommandPermission) {
+    async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
             let content = match command.data.name.as_str() {
-                "bottlecap" => bottlecap::run(&self.database, &command.data.options).await,
-                "list" => list_caps::run(&self.database, &command.user).await,
+                "bottlecap" => give_bottlecap::run(&self.database, &command.data.options).await,
+                "list-available" => list_available_caps::run(&self.database, &command.user).await,
+                "use" => use_cap::run(&self.database, &command.user).await,
                 command => unreachable!("Unknown command: {}", command),
             };
 
@@ -46,8 +47,9 @@ impl EventHandler for Bot {
 
         let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
             commands
-                .create_application_command(|command| bottlecap::register(command))
-                .create_application_command(|command| list_caps::register(command))
+                .create_application_command(|command| give_bottlecap::register(command))
+                .create_application_command(|command| list_available_caps::register(command))
+                .create_application_command(|command| use_cap::register(command))
         })
         .await;
 

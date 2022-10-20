@@ -35,7 +35,18 @@ pub(crate) async fn give_bottlecap(
     Ok(format!("Have a bottlecap!"))
 }
 
-pub(crate) async fn list_caps(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
+pub(crate) async fn use_cap(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
+    info!("{} tried to use a bottlecap", user.name);
+    let mention = Mention::User(user.id);
+    sqlx::query("UPDATE bottlecaps SET available = false WHERE user_id = $1 LIMIT 1")
+        .bind(user.id.to_string())
+        .execute(pool)
+        .await?;
+
+    Ok(format!("{} used a bottlecap!", mention))
+}
+
+pub(crate) async fn list_available_caps(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
     info!("Checking caps for {}!", user.name);
     let mention = Mention::User(user.id);
     let bottlecaps: Vec<Bottlecap> =

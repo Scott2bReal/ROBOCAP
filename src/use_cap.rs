@@ -4,10 +4,10 @@ use sqlx::PgPool;
 use serenity::{builder::CreateApplicationCommand, model::user::User};
 
 pub async fn run(db: &PgPool, user: &User) -> String {
-    let result = self::db::list_caps(db, user).await.unwrap();
+    let result = self::db::use_cap(db, user).await.unwrap();
     format!("{}", result)
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
-    command.name("list").description("List caps")
+    command.name("use").description("Use a bottlecap!")
 }

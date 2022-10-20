@@ -26,7 +26,9 @@ pub async fn run(db: &PgPool, options: &[CommandDataOption]) -> String {
         .expect("Expected a string");
 
     if let CommandDataOptionValue::User(user, _member) = user_option {
-        if let CommandDataOptionValue::String(reason) = reason_option {
+        if user.tag() != "Scott2bReal#7559" {
+            return "Only Caleb can do that!".to_string();
+        } else if let CommandDataOptionValue::String(reason) = reason_option {
             // TODO Award the cap here
             let mention = Mention::User(user.id);
             self::db::give_bottlecap(db, &user, reason).await.unwrap();
@@ -41,12 +43,12 @@ pub async fn run(db: &PgPool, options: &[CommandDataOption]) -> String {
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
     command
-        .name("bottlecap")
-        .description("Give a user a bottlecap")
+        .name("give_bottlecap")
+        .description("Give someone a bottlecap")
         .create_option(|option| {
             option
                 .name("user")
-                .description("The user to give the cap to")
+                .description("Who to give the cap to")
                 .kind(CommandOptionType::User)
                 .required(true)
         })
