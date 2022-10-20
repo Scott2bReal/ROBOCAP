@@ -29,8 +29,7 @@ pub async fn run(db: &PgPool, options: &[CommandDataOption]) -> String {
     if let CommandDataOptionValue::User(user, _member) = user_option {
         if let CommandDataOptionValue::String(reason) = reason_option {
             // TODO Award the cap here
-            let result = self::db::give_bottlecap(db, &user.id, reason);
-            block_on(result).ok();
+            // let result = self::db::give_bottlecap(db, &user.id, reason);
             let mention = Mention::User(user.id);
             format!("{} was awarded a bottlecap for {}", mention, reason)
         } else {
