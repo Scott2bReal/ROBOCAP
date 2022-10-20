@@ -1,11 +1,11 @@
 CREATE TABLE IF NOT EXISTS users (
-  id int PRIMARY KEY,
+  id text PRIMARY KEY,
   name text NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS bottlcaps (
-  id int PRIMARY KEY,
-  user_id int REFERENCES users (id)
+CREATE TABLE IF NOT EXISTS bottlecaps (
+  id serial PRIMARY KEY,
+  user_id text REFERENCES users (id)
     ON DELETE CASCADE
     NOT NULL,
   reason text NOT NULL,
