@@ -1,5 +1,6 @@
-mod give_bottlecap;
+mod cap_history;
 mod db;
+mod give_bottlecap;
 mod list_available_caps;
 mod use_cap;
 
@@ -26,6 +27,7 @@ impl EventHandler for Bot {
                 "bottlecap" => give_bottlecap::run(&self.database, &command.data.options).await,
                 "list-available" => list_available_caps::run(&self.database, &command.user).await,
                 "use" => use_cap::run(&self.database, &command.user).await,
+                "history" => cap_history::run(&self.database, &command.user).await,
                 command => unreachable!("Unknown command: {}", command),
             };
 
@@ -50,6 +52,7 @@ impl EventHandler for Bot {
                 .create_application_command(|command| give_bottlecap::register(command))
                 .create_application_command(|command| list_available_caps::register(command))
                 .create_application_command(|command| use_cap::register(command))
+                .create_application_command(|command| cap_history::register(command))
         })
         .await;
 
