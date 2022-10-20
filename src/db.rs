@@ -1,5 +1,6 @@
 use serenity::model::prelude::UserId;
-use sqlx::{PgPool};
+use sqlx::PgPool;
+use tracing::info;
 
 // #[derive(FromRow)]
 // struct Bottlecap {
@@ -10,8 +11,13 @@ use sqlx::{PgPool};
 //     pub awarded: String,
 // }
 
-pub(crate) async fn give_bottlecap(pool: &PgPool, user_id: &UserId, reason: &String) -> Result<String, sqlx::Error> {
+pub(crate) async fn give_bottlecap(
+    pool: &PgPool,
+    user_id: &UserId,
+    reason: &String,
+) -> Result<String, sqlx::Error> {
     // give a bottlecap!
+    info!("Attempting to add bottlecap!");
     sqlx::query("INSERT INTO bottlecaps (user_id, reason) VALUES ($1, $2, $3, $4)")
         .bind(user_id.to_string())
         .bind(reason)

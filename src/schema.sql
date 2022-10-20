@@ -6,8 +6,8 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS bottlcaps (
   id int PRIMARY KEY,
   user_id int REFERENCES users (id)
-    NOT NULL
-    ON DELETE CASCADE,
+    ON DELETE CASCADE
+    NOT NULL,
   reason text NOT NULL,
   available boolean DEFAULT true,
   awarded timestamp DEFAULT now()
