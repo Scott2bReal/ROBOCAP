@@ -1,7 +1,7 @@
 mod cap_history;
 mod db;
-mod give_bottlecap;
-mod list_available_caps;
+mod give_cap;
+mod list_available;
 mod use_cap;
 
 use anyhow::{anyhow, Context as _};
@@ -24,8 +24,8 @@ impl EventHandler for Bot {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
             let content = match command.data.name.as_str() {
-                "bottlecap" => give_bottlecap::run(&self.database, &command.data.options).await,
-                "list-available" => list_available_caps::run(&self.database, &command.user).await,
+                "give-cap" => give_cap::run(&self.database, &command.data.options).await,
+                "list-available" => list_available::run(&self.database, &command.user).await,
                 "use" => use_cap::run(&self.database, &command.user).await,
                 "history" => cap_history::run(&self.database, &command.user).await,
                 command => unreachable!("Unknown command: {}", command),
@@ -49,8 +49,8 @@ impl EventHandler for Bot {
 
         let commands = GuildId::set_application_commands(&guild_id, &ctx.http, |commands| {
             commands
-                .create_application_command(|command| give_bottlecap::register(command))
-                .create_application_command(|command| list_available_caps::register(command))
+                .create_application_command(|command| give_cap::register(command))
+                .create_application_command(|command| list_available::register(command))
                 .create_application_command(|command| use_cap::register(command))
                 .create_application_command(|command| cap_history::register(command))
         })
@@ -77,7 +77,7 @@ async fn serenity(
         .context("'GUILD_ID' was not found")?;
 
     // Run the schema migration
-    pool.execute(include_str!("./schema.sql"))
+    pool.execute(include_str!("./sql/schema.sql"))
         .await
         .context("failed to run migration")?;
 

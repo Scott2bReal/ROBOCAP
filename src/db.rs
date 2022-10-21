@@ -13,7 +13,7 @@ struct Bottlecap {
     pub awarded: String,
 }
 
-pub(crate) async fn give_bottlecap(
+pub(crate) async fn give_cap(
     pool: &PgPool,
     user: &User,
     reason: &String,
@@ -35,18 +35,7 @@ pub(crate) async fn give_bottlecap(
     Ok(format!("Have a bottlecap!"))
 }
 
-pub(crate) async fn use_cap(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
-    info!("{} tried to use a bottlecap", user.name);
-    let mention = Mention::User(user.id);
-    sqlx::query("UPDATE bottlecaps SET available = false WHERE user_id = $1 LIMIT 1")
-        .bind(user.id.to_string())
-        .execute(pool)
-        .await?;
-
-    Ok(format!("{} used a bottlecap!", mention))
-}
-
-pub(crate) async fn list_available_caps(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
+pub(crate) async fn list_available(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
     info!("Checking caps for {}!", user.name);
     let mention = Mention::User(user.id);
     let bottlecaps: Vec<Bottlecap> =
@@ -54,7 +43,7 @@ pub(crate) async fn list_available_caps(pool: &PgPool, user: &User) -> Result<St
             .bind(user.id.to_string())
             .fetch_all(pool)
             .await?;
-    let mut response = format!("{} has {} bottlecaps:\n", mention, bottlecaps.len());
+    let mut response = format!("{} has {} bottlecaps\n------------", mention, bottlecaps.len());
     for (i, cap) in bottlecaps.iter().enumerate() {
         writeln!(
             &mut response,
@@ -69,15 +58,26 @@ pub(crate) async fn list_available_caps(pool: &PgPool, user: &User) -> Result<St
     Ok(response)
 }
 
+pub(crate) async fn use_cap(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
+    info!("{} tried to use a bottlecap", user.name);
+    let mention = Mention::User(user.id);
+
+    sqlx::query("UPDATE bottlecaps b SET available = false WHERE b.id IN (SELECT id FROM bottlecaps WHERE user_id = $1 AND available = true LIMIT 1)")
+        .bind(user.id.to_string())
+        .execute(pool)
+        .await?;
+
+    Ok(format!("{} used a bottlecap!", mention))
+}
+
 pub(crate) async fn cap_history(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
     info!("Checking caps for {}!", user.name);
     let mention = Mention::User(user.id);
-    let bottlecaps: Vec<Bottlecap> =
-        sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1")
-            .bind(user.id.to_string())
-            .fetch_all(pool)
-            .await?;
-    let mut response = format!("{} has {} bottlecaps:\n", mention, bottlecaps.len());
+    let bottlecaps: Vec<Bottlecap> = sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1")
+        .bind(user.id.to_string())
+        .fetch_all(pool)
+        .await?;
+    let mut response = format!("{} has {} bottlecaps\n------------", mention, bottlecaps.len());
     for (i, cap) in bottlecaps.iter().enumerate() {
         writeln!(
             &mut response,
@@ -90,4 +90,21 @@ pub(crate) async fn cap_history(pool: &PgPool, user: &User) -> Result<String, sq
     }
 
     Ok(response)
+}
+
+pub async fn check_caps_for_use(pool: &PgPool, user_id: &String) -> Result<String, sqlx::Error> {
+    let result: Vec<Bottlecap> = sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1 AND available = true")
+        .bind(user_id)
+        .fetch_all(pool)
+        .await?;
+
+    let remaining = result.len();
+
+    let response = if remaining == 0 {
+        "No bottlecaps left!".to_string()
+    } else {
+        format!("{} bottlecaps left!", remaining)
+    };
+
+    Ok(format!("{}", response))
 }
