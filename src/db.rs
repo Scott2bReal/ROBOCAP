@@ -43,7 +43,11 @@ pub(crate) async fn list_available(pool: &PgPool, user: &User) -> Result<String,
             .bind(user.id.to_string())
             .fetch_all(pool)
             .await?;
-    let mut response = format!("{} has {} bottlecaps\n------------\n", mention, bottlecaps.len());
+    let mut response = format!(
+        "{} has {} bottlecaps\n------------\n",
+        mention,
+        bottlecaps.len()
+    );
     for (i, cap) in bottlecaps.iter().enumerate() {
         writeln!(
             &mut response,
@@ -77,7 +81,21 @@ pub(crate) async fn cap_history(pool: &PgPool, user: &User) -> Result<String, sq
         .bind(user.id.to_string())
         .fetch_all(pool)
         .await?;
-    let mut response = format!("{} has {} bottlecaps\n------------\n", mention, bottlecaps.len());
+
+    let mut response = if bottlecaps.len() == 1 {
+        format!(
+            "{} has {} bottlecap\n------------\n",
+            mention,
+            bottlecaps.len()
+        )
+    } else {
+        format!(
+            "{} has {} bottlecaps\n------------\n",
+            mention,
+            bottlecaps.len()
+        )
+    };
+
     for (i, cap) in bottlecaps.iter().enumerate() {
         writeln!(
             &mut response,
@@ -93,15 +111,18 @@ pub(crate) async fn cap_history(pool: &PgPool, user: &User) -> Result<String, sq
 }
 
 pub async fn check_caps_for_use(pool: &PgPool, user_id: &String) -> Result<String, sqlx::Error> {
-    let result: Vec<Bottlecap> = sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1 AND available = true")
-        .bind(user_id)
-        .fetch_all(pool)
-        .await?;
+    let result: Vec<Bottlecap> =
+        sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1 AND available = true")
+            .bind(user_id)
+            .fetch_all(pool)
+            .await?;
 
     let remaining = result.len();
 
     let response = if remaining == 0 {
         "No bottlecaps left!".to_string()
+    } else if remaining == 1 {
+        format!("{} bottlecap left!", remaining)
     } else {
         format!("{} bottlecaps left!", remaining)
     };
