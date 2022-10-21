@@ -1,6 +1,6 @@
 # ROBOCAP
 
-![image]('https://user-images.githubusercontent.com/69652149/197212796-c0e3c140-80a6-4afb-a9ee-85f33968e65b.png')
+![ROBOCAP](https://i.imgur.com/096f02x.png)
 
 A Discord bot written in Rust to keep track of "bottle caps" for tabletop RPGs.
 Brought to life by [serenity](https://github.com/serenity-rs/serenity) and
@@ -32,7 +32,7 @@ DISCORD_TOKEN = 'your discord bot token'
 
 * `/list-available` - Lists currently available bottle caps for the user who uses the command
 * `/history` - Lists all caps past and present a user has earned
-* `/use` - ~Use a bottle cap~ 
+* `/use` - ~ Use a bottle cap ~ 
 * `/give-cap` - Give a bottle cap to a user
 
 
