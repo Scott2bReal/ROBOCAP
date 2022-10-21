@@ -7,6 +7,7 @@ mod use_cap;
 use anyhow::{anyhow, Context as _};
 use serenity::model::application::interaction::Interaction;
 use serenity::model::gateway::Ready;
+use serenity::model::prelude::Message;
 use serenity::model::prelude::interaction::InteractionResponseType;
 use serenity::prelude::*;
 use serenity::{async_trait, model::prelude::GuildId};
@@ -21,6 +22,18 @@ struct Bot {
 
 #[async_trait]
 impl EventHandler for Bot {
+    async fn message(&self, ctx: Context, msg: Message) {
+        if msg.mentions_me(&ctx.http).await.unwrap() {
+            // Sending a message can fail, due to a network error, an
+            // authentication error, or lack of permissions to post in the
+            // channel, so log to stdout when some error happens, with a
+            // description of it.
+            if let Err(why) = msg.channel_id.say(&ctx.http, "BING BONG").await {
+                println!("Error sending message: {:?}", why);
+            }
+        }
+    }
+
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
             let content = match command.data.name.as_str() {
