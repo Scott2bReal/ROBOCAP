@@ -1,5 +1,7 @@
 # ROBOCAP
 
+![image]('https://user-images.githubusercontent.com/69652149/197212796-c0e3c140-80a6-4afb-a9ee-85f33968e65b.png')
+
 A Discord bot written in Rust to keep track of "bottle caps" for tabletop RPGs.
 Brought to life by [serenity](https://github.com/serenity-rs/serenity) and
 [shuttle](https://www.shuttle.rs/).
