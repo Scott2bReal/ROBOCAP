@@ -56,6 +56,7 @@ impl EventHandler for Bot {
             }
         }
     }
+
     async fn ready(&self, ctx: Context, ready: Ready) {
         info!("{} is connected!", ready.user.name);
         let guild_id = GuildId(self.guild_id.parse().unwrap());
