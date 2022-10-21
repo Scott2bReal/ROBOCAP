@@ -28,10 +28,11 @@ DISCORD_TOKEN = 'your discord bot token'
 
 ## Commands
 
-`/list-available` - Lists currently available bottle caps for the user who uses the command
-`/history` - Lists all caps past and present a user has earned
-`/use` - ~Use a bottle cap~ 
-`/give-cap` - Give a bottle cap to a user
+* `/list-available` - Lists currently available bottle caps for the user who uses the command
+* `/history` - Lists all caps past and present a user has earned
+* `/use` - ~Use a bottle cap~ 
+* `/give-cap` - Give a bottle cap to a user
+
 
 ## Permissions
 
