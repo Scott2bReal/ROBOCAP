@@ -39,7 +39,7 @@ pub(crate) async fn list_available(pool: &PgPool, user: &User) -> Result<String,
     info!("Checking caps for {}!", user.name);
     let mention = Mention::User(user.id);
     let bottlecaps: Vec<Bottlecap> =
-        sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1 AND available = true")
+        sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1 AND available = true GROUP BY id")
             .bind(user.id.to_string())
             .fetch_all(pool)
             .await?;
@@ -87,7 +87,7 @@ pub(crate) async fn use_cap(pool: &PgPool, user: &User) -> Result<String, sqlx::
 pub(crate) async fn cap_history(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
     info!("Checking caps for {}!", user.name);
     let mention = Mention::User(user.id);
-    let bottlecaps: Vec<Bottlecap> = sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1")
+    let bottlecaps: Vec<Bottlecap> = sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1 GROUP BY id")
         .bind(user.id.to_string())
         .fetch_all(pool)
         .await?;
