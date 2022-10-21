@@ -4,11 +4,12 @@ mod give_cap;
 mod list_available;
 mod use_cap;
 
+
 use anyhow::{anyhow, Context as _};
 use serenity::model::application::interaction::Interaction;
 use serenity::model::gateway::Ready;
-use serenity::model::prelude::Message;
 use serenity::model::prelude::interaction::InteractionResponseType;
+use serenity::model::prelude::Message;
 use serenity::prelude::*;
 use serenity::{async_trait, model::prelude::GuildId};
 use shuttle_secrets::SecretStore;
@@ -70,6 +71,7 @@ impl EventHandler for Bot {
         })
         .await;
 
+
         info!("{:?}", commands);
     }
 }
@@ -101,9 +103,7 @@ async fn serenity(
     };
 
     // Set gateway intents, which decides what events the bot will be notified about
-    let intents = GatewayIntents::GUILD_MESSAGES
-        | GatewayIntents::MESSAGE_CONTENT
-        | GatewayIntents::GUILD_MESSAGE_REACTIONS;
+    let intents = GatewayIntents::non_privileged() | GatewayIntents::MESSAGE_CONTENT;
 
     let client = Client::builder(&token, intents)
         .event_handler(bot)

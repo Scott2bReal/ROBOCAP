@@ -43,7 +43,7 @@ pub(crate) async fn list_available(pool: &PgPool, user: &User) -> Result<String,
             .bind(user.id.to_string())
             .fetch_all(pool)
             .await?;
-    let mut response = format!("{} has {} bottlecaps\n------------", mention, bottlecaps.len());
+    let mut response = format!("{} has {} bottlecaps\n------------\n", mention, bottlecaps.len());
     for (i, cap) in bottlecaps.iter().enumerate() {
         writeln!(
             &mut response,
@@ -77,7 +77,7 @@ pub(crate) async fn cap_history(pool: &PgPool, user: &User) -> Result<String, sq
         .bind(user.id.to_string())
         .fetch_all(pool)
         .await?;
-    let mut response = format!("{} has {} bottlecaps\n------------", mention, bottlecaps.len());
+    let mut response = format!("{} has {} bottlecaps\n------------\n", mention, bottlecaps.len());
     for (i, cap) in bottlecaps.iter().enumerate() {
         writeln!(
             &mut response,
