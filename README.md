@@ -12,7 +12,7 @@ something clever, bold or funny. Players can cash in these tokens at their
 discretion to gain the ability to roll twice and take the better result on any
 roll
 
-`ROBOCAP` keep track of who has how many caps, and can give players a history
+`ROBOCAP` keeps track of who has how many caps, and can give players a history
 of all the caps they've earned. 
 
 ## Getting Started
