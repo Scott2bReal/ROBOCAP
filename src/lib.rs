@@ -4,7 +4,6 @@ mod give_cap;
 mod list_available;
 mod use_cap;
 
-
 use anyhow::{anyhow, Context as _};
 use serenity::model::application::interaction::Interaction;
 use serenity::model::gateway::Ready;
@@ -70,7 +69,6 @@ impl EventHandler for Bot {
                 .create_application_command(|command| cap_history::register(command))
         })
         .await;
-
 
         info!("{:?}", commands);
     }

@@ -52,7 +52,7 @@ pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicatio
         })
         .create_option(|option| {
             option
-                .name("reason")
+                .name("for")
                 .description("The reason for the cap")
                 .kind(CommandOptionType::String)
                 .required(true)
