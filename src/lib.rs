@@ -29,19 +29,10 @@ impl EventHandler for Bot {
             // channel, so log to stdout when some error happens, with a
             // description of it.
             if let Err(why) = msg.channel_id.say(&ctx.http, "BING BONG").await {
-                println!("Error sending message: {:?}", why);
+                info!("Error sending message: {:?}", why);
             }
-        }
-
-        if msg.mentions_me(&ctx.http).await.unwrap() {
             if let Err(why) = Message::react(&msg, &ctx.http, '🤖').await {
-                info!("Tried to react to message but failed! {}", why)
-            }
-        }
-
-        if msg.is_private() && &msg.content == "BING BONG" {
-            if let Err(why) = msg.reply(&ctx.http, "FUCK YA LIFE").await {
-                info!("Tried to respond to bing bong: {}", why)
+                info!("Tried to react to message but failed! {:?}", why)
             }
         }
     }
