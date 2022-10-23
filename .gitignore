@@ -4,3 +4,5 @@
 Secrets.toml
 
 .env
+
+src/sql/starting_caps.sql
