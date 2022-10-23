@@ -8,7 +8,7 @@ use anyhow::{anyhow, Context as _};
 use serenity::model::application::interaction::Interaction;
 use serenity::model::gateway::Ready;
 use serenity::model::prelude::interaction::InteractionResponseType;
-use serenity::model::prelude::{Message, Emoji};
+use serenity::model::prelude::Message;
 use serenity::prelude::*;
 use serenity::{async_trait, model::prelude::GuildId};
 use shuttle_secrets::SecretStore;
@@ -23,8 +23,7 @@ struct Bot {
 #[async_trait]
 impl EventHandler for Bot {
     async fn message(&self, ctx: Context, msg: Message) {
-        if &msg.mentions_me(&ctx.http).await.unwrap()
-        | msg.mention_everyone {
+        if msg.mention_everyone {
             // Sending a message can fail, due to a network error, an
             // authentication error, or lack of permissions to post in the
             // channel, so log to stdout when some error happens, with a
@@ -32,9 +31,17 @@ impl EventHandler for Bot {
             if let Err(why) = msg.channel_id.say(&ctx.http, "BING BONG").await {
                 println!("Error sending message: {:?}", why);
             }
+        }
 
-        if let Err(why) = Message::react(&msg, &ctx.http, '🤖').await {
+        if msg.mentions_me(&ctx.http).await.unwrap() {
+            if let Err(why) = Message::react(&msg, &ctx.http, '🤖').await {
                 info!("Tried to react to message but failed! {}", why)
+            }
+        }
+
+        if msg.is_private() && &msg.content == "BING BONG" {
+            if let Err(why) = msg.reply(&ctx.http, "FUCK YA LIFE").await {
+                info!("Tried to respond to bing bong: {}", why)
             }
         }
     }
