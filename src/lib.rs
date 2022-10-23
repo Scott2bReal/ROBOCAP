@@ -35,6 +35,18 @@ impl EventHandler for Bot {
                 info!("Tried to react to message but failed! {:?}", why)
             }
         }
+
+        if msg.content.to_lowercase() == "bing bong" {
+            if let Err(why) = Message::react(&msg, &ctx.http, '🖕').await {
+                info!("Tried to react to message but failed! {:?}", why)
+            }
+        }
+
+        if msg.mentions_me(&ctx.http).await.unwrap() {
+            if let Err(why) = Message::react(&msg, &ctx.http, '🤖').await {
+                info!("Tried to react to message but failed! {:?}", why)
+            }
+        }
     }
 
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
