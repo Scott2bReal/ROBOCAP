@@ -19,13 +19,11 @@ pub(crate) async fn give_cap(
     reason: &String,
 ) -> Result<String, sqlx::Error> {
     // give a bottlecap!
-    info!("Attempting to add bottlecap!");
     let now: String = Timestamp::now()
         .to_string()
         .split('T')
         .collect::<Vec<&str>>()[0]
         .to_string();
-    info!("Today's date is {}", &now);
     sqlx::query("INSERT INTO bottlecaps (user_id, reason, awarded) VALUES ($1, $2, $3)")
         .bind(user.id.to_string())
         .bind(reason)
@@ -86,7 +84,6 @@ pub(crate) async fn use_cap(pool: &PgPool, user: &User) -> Result<String, sqlx::
 }
 
 pub(crate) async fn cap_history(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
-    info!("Checking caps for {}!", user.name);
     let mention = Mention::User(user.id);
     let bottlecaps: Vec<Bottlecap> =
         sqlx::query_as("SELECT * FROM bottlecaps WHERE user_id = $1 GROUP BY id")
@@ -96,13 +93,13 @@ pub(crate) async fn cap_history(pool: &PgPool, user: &User) -> Result<String, sq
 
     let mut response = if bottlecaps.len() == 1 {
         format!(
-            "{} has {} bottlecap\n------------\n",
+            "{} has received {} total bottlecap (that I know of)\n--------------------------------------------------\n",
             mention,
             bottlecaps.len()
         )
     } else {
         format!(
-            "{} has {} bottlecaps\n------------\n",
+            "{} has received {} total bottlecaps (that I know of)\n--------------------------------------------------\n",
             mention,
             bottlecaps.len()
         )
