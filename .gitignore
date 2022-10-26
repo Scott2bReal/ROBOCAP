@@ -6,3 +6,5 @@
 .env
 
 src/sql/starting_caps.sql
+
+Secrets.toml
