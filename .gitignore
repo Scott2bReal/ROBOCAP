@@ -1,7 +1,7 @@
 /target
 /Cargo.lock
 /avatar/*
-Secrets.toml
+# Secrets.toml
 
 .env
 
