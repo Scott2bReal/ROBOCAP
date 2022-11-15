@@ -30,7 +30,7 @@ pub(crate) async fn give_cap(
         .bind(now)
         .execute(pool)
         .await?;
-    Ok(format!("Have a bottlecap!"))
+    Ok("Have a bottlecap!".to_string())
 }
 
 pub(crate) async fn list_available(pool: &PgPool, user: &User) -> Result<String, sqlx::Error> {
@@ -136,5 +136,5 @@ pub async fn check_caps_for_use(pool: &PgPool, user_id: &String) -> Result<Strin
         format!("{} bottlecaps left!", remaining)
     };
 
-    Ok(format!("{}", response))
+    Ok(response)
 }

@@ -7,7 +7,7 @@ use serenity::{
 };
 
 pub async fn run(db: &PgPool, user: &User) -> String {
-    let remaining = self::db::check_caps_for_use(&db, &user.id.to_string())
+    let remaining = self::db::check_caps_for_use(db, &user.id.to_string())
         .await
         .unwrap();
     let mention = Mention::User(user.id);
@@ -16,7 +16,7 @@ pub async fn run(db: &PgPool, user: &User) -> String {
         return format!("{} has no bottlecaps left!", mention);
     };
 
-    format!("{}", self::db::use_cap(db, user).await.unwrap())
+    self::db::use_cap(db, user).await.unwrap()
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {

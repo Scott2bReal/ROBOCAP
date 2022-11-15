@@ -36,7 +36,7 @@ impl EventHandler for Bot {
             }
         }
 
-        if msg.content.to_lowercase() == "bing bong" {
+        if msg.content.to_lowercase().contains("bing bong") {
             if let Err(why) = Message::react(&msg, &ctx.http, '🖕').await {
                 info!("Tried to react to message but failed! {:?}", why)
             }

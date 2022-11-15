@@ -4,8 +4,7 @@ use sqlx::PgPool;
 use serenity::{builder::CreateApplicationCommand, model::user::User};
 
 pub async fn run(db: &PgPool, user: &User) -> String {
-    let result = self::db::cap_history(db, user).await.unwrap();
-    format!("{}", result)
+    self::db::cap_history(db, user).await.unwrap()
 }
 
 pub fn register(command: &mut CreateApplicationCommand) -> &mut CreateApplicationCommand {
