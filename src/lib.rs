@@ -2,6 +2,7 @@ mod cap_history;
 mod db;
 mod give_cap;
 mod list_available;
+mod list_user_caps;
 mod use_cap;
 
 use anyhow::{anyhow, Context as _};
@@ -56,6 +57,9 @@ impl EventHandler for Bot {
                 "list-available" => list_available::run(&self.database, &command.user).await,
                 "use" => use_cap::run(&self.database, &command.user).await,
                 "history" => cap_history::run(&self.database, &command.user).await,
+                "list-user-caps" => {
+                    list_user_caps::run(&self.database, &command.data.options).await
+                }
                 command => unreachable!("Unknown command: {}", command),
             };
 
@@ -63,7 +67,13 @@ impl EventHandler for Bot {
                 .create_interaction_response(&ctx.http, |response| {
                     response
                         .kind(InteractionResponseType::ChannelMessageWithSource)
-                        .interaction_response_data(|message| message.content(content))
+                        .interaction_response_data(|message| {
+                            if command.data.name == "list-user-caps" {
+                                message.content(content).ephemeral(true)
+                            } else {
+                                message.content(content)
+                            }
+                        })
                 })
                 .await
             {
@@ -82,6 +92,7 @@ impl EventHandler for Bot {
                 .create_application_command(|command| list_available::register(command))
                 .create_application_command(|command| use_cap::register(command))
                 .create_application_command(|command| cap_history::register(command))
+                .create_application_command(|command| list_user_caps::register(command))
         })
         .await;
 
