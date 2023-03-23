@@ -1,10 +1,3 @@
-mod cap_history;
-mod db;
-mod give_cap;
-mod list_available;
-mod list_user_caps;
-mod use_cap;
-
 use anyhow::{anyhow, Context as _};
 use serenity::model::application::interaction::Interaction;
 use serenity::model::gateway::Ready;
@@ -15,6 +8,13 @@ use serenity::{async_trait, model::prelude::GuildId};
 use shuttle_secrets::SecretStore;
 use sqlx::{Executor, PgPool};
 use tracing::info;
+
+mod cap_history;
+mod db;
+mod give_cap;
+mod list_available;
+mod list_user_caps;
+mod use_cap;
 
 struct Bot {
     database: PgPool,
@@ -100,11 +100,11 @@ impl EventHandler for Bot {
     }
 }
 
-#[shuttle_service::main]
+#[shuttle_runtime::main]
 async fn serenity(
     #[shuttle_secrets::Secrets] secret_store: SecretStore,
     #[shuttle_shared_db::Postgres] pool: PgPool,
-) -> shuttle_service::ShuttleSerenity {
+) -> shuttle_serenity::ShuttleSerenity {
     // Get the discord token set in `Secrets.toml`
     let token = if let Some(token) = secret_store.get("DISCORD_TOKEN") {
         token
@@ -134,5 +134,5 @@ async fn serenity(
         .await
         .expect("Err creating client");
 
-    Ok(client)
+    Ok(client.into())
 }
