@@ -8,7 +8,7 @@ CREATE TABLE IF NOT EXISTS bottlecaps (
     awarded text,
 );
 
-CREATE TABLE IF NOT EXISTS next_game (
-    id serial PRIMARY KEY,
-    date text
-)
+-- CREATE TABLE IF NOT EXISTS next_game (
+--     id serial PRIMARY KEY,
+--     date text
+-- )
