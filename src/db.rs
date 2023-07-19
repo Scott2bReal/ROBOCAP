@@ -138,3 +138,19 @@ pub async fn check_caps_for_use(pool: &PgPool, user_id: &String) -> Result<Strin
 
     Ok(response)
 }
+
+pub async fn set_next_game(pool: &PgPool, next_game: &String) -> Result<String, sqlx::Error> {
+    info!("Setting next game to {}", next_game);
+    sqlx::query("UPDATE next_game SET date = $1 WHERE id = 1")
+        .bind(next_game)
+        .execute(pool)
+        .await?;
+    Ok(format!("Next game is on {}!", next_game))
+}
+
+pub async fn next_game_when(pool: &PgPool) -> Result<String, sqlx::Error> {
+    let next_game: String = sqlx::query_scalar("SELECT date FROM next_game WHERE id = 1")
+        .fetch_one(pool)
+        .await?;
+    Ok(format!("Next game is on {}!", next_game))
+}

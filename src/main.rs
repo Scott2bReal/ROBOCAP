@@ -14,6 +14,8 @@ mod db;
 mod give_cap;
 mod list_available;
 mod list_user_caps;
+mod next_game_when;
+mod set_next_game;
 mod use_cap;
 
 struct Bot {
@@ -53,6 +55,8 @@ impl EventHandler for Bot {
     async fn interaction_create(&self, ctx: Context, interaction: Interaction) {
         if let Interaction::ApplicationCommand(command) = interaction {
             let content = match command.data.name.as_str() {
+                "next-game-when" => next_game_when::run(&self.database).await,
+                "set-next-game" => set_next_game::run(&self.database, &command.data.options).await,
                 "give-cap" => give_cap::run(&self.database, &command.data.options).await,
                 "list-available" => list_available::run(&self.database, &command.user).await,
                 "use" => use_cap::run(&self.database, &command.user).await,
@@ -68,7 +72,9 @@ impl EventHandler for Bot {
                     response
                         .kind(InteractionResponseType::ChannelMessageWithSource)
                         .interaction_response_data(|message| {
-                            if command.data.name == "list-user-caps" {
+                            if command.data.name == "list-user-caps"
+                                || command.data.name == "next-game-when"
+                            {
                                 message.content(content).ephemeral(true)
                             } else {
                                 message.content(content)
@@ -93,6 +99,8 @@ impl EventHandler for Bot {
                 .create_application_command(|command| use_cap::register(command))
                 .create_application_command(|command| cap_history::register(command))
                 .create_application_command(|command| list_user_caps::register(command))
+                .create_application_command(|command| set_next_game::register(command))
+                .create_application_command(|command| next_game_when::register(command))
         })
         .await;
 

@@ -9,7 +9,7 @@ anyhow = "1.0.66"
 serde = "1.0.148"
 tracing = "0.1.37"
 reqwest = "0.11.12"
-shuttle-shared-db = { version = "0.12.0", features = ["postgres"] }
+shuttle-shared-db = { version = "0.20.0", features = ["postgres"] }
 sqlx = { version = "0.6.1", features = [
   "runtime-tokio-native-tls",
   "postgres",
@@ -21,7 +21,7 @@ serenity = { version = "0.11.5", default-features = false, features = [
   "rustls_backend",
   "model",
 ] }
-shuttle-runtime = "0.12.0"
-shuttle-serenity = "0.12.0"
-shuttle-secrets = "0.12.0"
+shuttle-runtime = "0.20.0"
+shuttle-serenity = "0.20.0"
+shuttle-secrets = "0.20.0"
 tokio = "1.26.0"
